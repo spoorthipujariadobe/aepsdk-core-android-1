@@ -67,6 +67,8 @@ dependencies {
     implementation(project(":lifecycle"))
     implementation(project(":signal"))
 
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
     /* Uncomment the following line when testing with assurance extension */
     // implementation("com.adobe.marketing.mobile:assurance:3.0.0") {
     //  isTransitive = false

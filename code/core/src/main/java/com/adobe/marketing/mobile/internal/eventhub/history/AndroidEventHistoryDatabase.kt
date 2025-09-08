@@ -13,7 +13,11 @@ package com.adobe.marketing.mobile.internal.eventhub.history
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import com.adobe.marketing.mobile.Event
 import com.adobe.marketing.mobile.EventHistoryResult
+import com.adobe.marketing.mobile.EventSource
+import com.adobe.marketing.mobile.EventType
+import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.mobile.internal.CoreConstants
 import com.adobe.marketing.mobile.internal.eventhub.history.EventHistoryConstants.EVENT_HISTORY_ERROR
 import com.adobe.marketing.mobile.internal.util.FileUtils.moveFile
@@ -35,6 +39,7 @@ internal class AndroidEventHistoryDatabase : EventHistoryDatabase {
      */
     init {
         databaseFile = openOrMigrateEventHistoryDatabaseFile()
+        val databaseExistsBeforeOpen = databaseFile.exists()
 
         val tableCreationQuery =
             "CREATE TABLE IF NOT EXISTS $TABLE_NAME (eventHash INTEGER, timestamp INTEGER);"
@@ -47,6 +52,16 @@ internal class AndroidEventHistoryDatabase : EventHistoryDatabase {
                 throw EventHistoryDatabaseCreationException(
                     "An error occurred while creating the $TABLE_NAME table in the Android Event History database."
                 )
+            }
+            else {
+                // Log only when a new database is created
+                if (!databaseExistsBeforeOpen) {
+                    MobileCore.dispatchEvent(Event.Builder(
+                        "Event History Database Creation",
+                        EventType.SYSTEM,
+                        EventSource.DEBUG
+                    ).build())
+                }
             }
         }
     }
